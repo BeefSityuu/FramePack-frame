@@ -288,6 +288,12 @@ def worker(input_image, prompt, n_prompt, seed, total_second_length, latent_wind
                 overlapped_frames = latent_window_size * 4 - 3
 
                 current_pixels = vae_decode(real_history_latents[:, :, :section_latent_frames], vae).cpu()
+                # Add code to save individual frames:  
+                for frame_idx in range(current_pixels.shape[2]):  # Loop through the time dimension  
+                    frame = current_pixels[:, :, frame_idx:frame_idx+1, :, :]  # Extract single frame  
+                    frame_filename = os.path.join(outputs_folder, f'{job_id}_frame_{total_generated_latent_frames - section_latent_frames + frame_idx}.png')  
+                    save_bcthw_as_png(frame, frame_filename)
+                
                 history_pixels = soft_append_bcthw(current_pixels, history_pixels, overlapped_frames)
 
             if not high_vram:
